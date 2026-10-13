@@ -1,0 +1,7 @@
+1. Open Streamlit Text-to-SQL App
+2. Enter natural language query
+3. Show generated SQL query
+4. Execute and display results
+5. Test safe query
+6. Test unsafe query blocking
+7. Explain schema-aware prompting
