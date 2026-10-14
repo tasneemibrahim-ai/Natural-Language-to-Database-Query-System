@@ -37,7 +37,10 @@ env/
 *.env
 
 # SQLite transient files
+*.db
 *.db-journal
+company.db
+sample.db
 
 # IDE & Editor files
 .vscode/

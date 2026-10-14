@@ -1,48 +1,38 @@
 import streamlit as st
-from sql_chain import generate_sql
-from db import get_connection
+from main import query_to_sql
+from db_setup import setup_database, get_schema
 
-st.set_page_config(page_title="Text-to-SQL System", layout="wide")
+st.set_page_config(page_title="Text-to-SQL System", layout="wide", page_icon="🧠")
 
-st.title("🧠 Natural Language to SQL System")
+st.title("🧠 Natural Language to Database Query System")
+st.caption("Ask questions about the database in plain English · Powered by Groq LLaMA-3 + LangChain")
 
-st.markdown("Ask questions about the database in plain English.")
+# Ensure DB is ready
+setup_database()
 
-question = st.text_input("Enter your question:")
+with st.sidebar:
+    st.header("📋 Database Schema")
+    try:
+        st.code(get_schema(), language="sql")
+    except Exception as e:
+        st.warning(f"Could not load schema: {e}")
 
-if st.button("🚀 Generate & Execute"):
+question = st.text_input("Enter your question:", placeholder="e.g. Show all users from New York")
 
+if st.button("🚀 Generate & Execute", type="primary"):
     if not question.strip():
         st.error("Please enter a question.")
     else:
-        with st.spinner("Generating SQL..."):
-
-            try:
-                sql_query = generate_sql(question)
-
+        with st.spinner("Generating SQL & Executing..."):
+            res = query_to_sql(question.strip())
+            
+            if res["sql"]:
                 st.subheader("🧾 Generated SQL")
-                st.code(sql_query, language="sql")
-
-                # Safety check
-                if any(word in sql_query.lower() for word in ["drop", "delete", "update", "insert"]):
-                    st.error("❌ Unsafe query blocked!")
-                else:
-                    conn = get_connection()
-                    cursor = conn.cursor()
-
-                    try:
-                        cursor.execute(sql_query)
-                        results = cursor.fetchall()
-
-                        st.subheader("📊 Results")
-
-                        if results:
-                            st.dataframe(results)
-                        else:
-                            st.info("No results found.")
-
-                    except Exception as e:
-                        st.error(f"Query Error: {e}")
-
-            except Exception as e:
-                st.error(f"Error: {e}")
+                st.code(res["sql"], language="sql")
+                
+            if res["error"]:
+                st.error(f"❌ {res['error']}")
+            elif res["dataframe"] is not None:
+                st.subheader(f"📊 Results ({len(res['dataframe'])} row(s))")
+                st.dataframe(res["dataframe"], use_container_width=True)
+                st.download_button("⬇ Download CSV", res["dataframe"].to_csv(index=False), "query_results.csv", "text/csv")

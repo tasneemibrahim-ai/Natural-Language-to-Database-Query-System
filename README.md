@@ -172,8 +172,12 @@ python setup_db.py
 
 ### 6. Launch the Application
 
-#### Option A: Web User Interface (Streamlit)
+#### Option A: Streamlit Interactive Web Application
 ```bash
+# Recommended: Full-featured dashboard with schema viewer & CSV export
+streamlit run streamlit_app.py
+
+# Or classic quick-query interface
 streamlit run appUI.py
 ```
 *Navigate to `http://localhost:8501` in your browser.*
@@ -189,16 +193,16 @@ python main.py
 
 ```text
 Natural-Language-to-Database-Query-System/
-├── data/
-│   └── sample.db                                                  # SQLite database file
 ├── .env.example                                                   # Template for environment variables
-├── .gitignore                                                     # Git ignore rules (protects API keys)
+├── .gitignore                                                     # Git ignore rules (protects API keys & local DBs)
+├── streamlit_app.py                                               # Full-featured Streamlit UI (schema sidebar, quick queries, CSV download)
 ├── appUI.py                                                       # Streamlit web application interface
-├── db.py                                                          # SQLite database connection helper
-├── main.py                                                        # CLI entrypoint for testing
+├── main.py                                                        # CLI & core orchestration entrypoint
+├── chains.py                                                      # LangChain prompt templates & LCEL execution chain
+├── utils.py                                                       # SQL extraction, zero-trust regex validation & SQLite runner
+├── db_setup.py                                                    # Relational schema setup (users, products, orders) & seeder
+├── sql_chain.py                                                   # Legacy LangChain chain helper
 ├── requirements.txt                                               # Python project dependencies
-├── setup_db.py                                                    # Database creation and sample seed script
-├── sql_chain.py                                                   # LangChain LCEL pipeline & Groq LLM logic
 ├── App demo text.txt                                              # Step-by-step demonstration walkthrough
 ├── App report.docx                                                # Formal project report documentation
 ├── Natural Language to Database Query System (Text-to-SQL).pdf    # Project presentation & executive report
